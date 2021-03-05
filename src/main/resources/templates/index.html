@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" http-equiv="CONTENT-TYPE" content="text/html; charset=UTF-8"/>
+    <title>Number Translation</title>
+    <link href="/bootstrap/css/bootstrap.min.css" rel="stylesheet"/>
+</head>
+<body>
+<header>
+    <nav class="navbar-expand-sm navbar-toggleable-sm ng-white border-bottom box-shadow mb-3">
+        <div class="container">
+            <a class="navbar-brand" href="/">Translation Numbers</a>
+            <div class="collapse navbar-collapse" >
+                <ul class="navbar-nav flex-grow">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/">Home</a>
+                    </li>
+                    <li>
+                        <a class="nav-link" href="/login">Login</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+</header>
+<form th:action="@{/logout}" method="post">
+    <input type="submit" value="Sign Out"/>
+</form>
+</body>
+</html>
