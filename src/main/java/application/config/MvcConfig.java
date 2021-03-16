@@ -22,7 +22,7 @@ public class MvcConfig implements WebMvcConfigurer {
                 .addResourceLocations("classpath:/META-INF/resources/webjars/popper.js/1.16.0/umd/");
 
         registry.addResourceHandler("/bootstrap/**")
-                .addResourceLocations("classpath:/META-INF/resources/webjars/bootstrap/4.5.3/");
+                .addResourceLocations("classpath:/META-INF/resources/webjars/bootstrap/5.0.0-beta2/");
 
     }
 }

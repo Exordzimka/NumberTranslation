@@ -4,27 +4,122 @@
     <meta charset="UTF-8" http-equiv="CONTENT-TYPE" content="text/html; charset=UTF-8"/>
     <title>Number Translation</title>
     <link href="/bootstrap/css/bootstrap.min.css" rel="stylesheet"/>
+    <script>
+        async function translation() {
+            let text = document.getElementById("inputText").value;
+            let language = document.getElementById("language").value;
+            let fromTo = document.getElementById("fromTo").value;
+            let url = 'http://localhost:8091/translate';
+            let data =
+                {
+                    inputText: text.toString(),
+                    language: language.toString(),
+                    fromTo: fromTo.toString()
+                };
+            let response = await fetch(url,
+                {
+                    method: 'post',
+                    body: JSON.stringify(data),
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+            response.json().then(function (data) {
+                if(data.translatedNumber===undefined)
+                    document.getElementById("translatedText").value = "Error in input text!";
+                else
+                    document.getElementById("translatedText").value = data.translatedNumber;
+            });
+            await getHistory();
+        }
+
+        async function getHistory() {
+            let tableBody = document.getElementById("history");
+            tableBody.innerHTML="";
+            let url = 'http://localhost:8091/history';
+            let response = await fetch(url,
+                {
+                    method: 'get',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+            response.json().then(function (data) {
+                data.history.reverse().forEach(userHistory => addHistoryElementToTable(userHistory, tableBody))
+            });
+        }
+
+        function addHistoryElementToTable(historyElement, tableBody) {
+            let row = document.createElement("tr");
+            let user = document.createElement("td");
+            user.innerHTML  = historyElement.numberTranslationUser.username;
+            row.appendChild(user);
+            let beforeTranslate = document.createElement("td");
+            beforeTranslate.innerHTML  = historyElement.beforeTranslate;
+            row.appendChild(beforeTranslate);
+            let afterTranslate = document.createElement("td");
+            afterTranslate.innerHTML  = historyElement.afterTranslate;
+            row.appendChild(afterTranslate);
+            let dateTime = document.createElement("td");
+            dateTime.innerText = historyElement.dateTime;
+            row.appendChild(dateTime);
+            tableBody.appendChild(row);
+        }
+    </script>
 </head>
-<body>
+<body onload="getHistory()">
 <header>
-    <nav class="navbar-expand-sm navbar-toggleable-sm ng-white border-bottom box-shadow mb-3">
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
         <div class="container">
             <a class="navbar-brand" href="/">Translation Numbers</a>
-            <div class="collapse navbar-collapse" >
-                <ul class="navbar-nav flex-grow">
-                    <li class="nav-item">
-                        <a class="nav-link" href="/">Home</a>
+            <div class="collapse navbar-collapse">
+                <ul class="navbar-nav">
+                    <li class="px-2">
+                        <select class="form-select" id="fromTo">
+                            <option value="toDigits">From string to digits</option>
+                            <option value="toString">From digits to string</option>
+                        </select>
                     </li>
-                    <li>
-                        <a class="nav-link" href="/login">Login</a>
+                    <li class="px-2">
+                        <select class="form-select" id="language">
+                            <option value="russian">Русский</option>
+                            <option value="english">English</option>
+                        </select>
+                    </li>
+                    <li class="nav-item px-2">
+                        <form th:action="@{/logout}" method="post">
+                            <input class="btn btn-outline-danger my-2 my-sm-0" type="submit" value="Sign Out">
+                        </form>
                     </li>
                 </ul>
             </div>
         </div>
     </nav>
 </header>
-<form th:action="@{/logout}" method="post">
-    <input type="submit" value="Sign Out"/>
-</form>
+<article class="text-center" >
+    <div>
+        <input type="text" class="form-control h-auto" placeholder="Enter your text" id="inputText">
+    </div>
+    <div>
+        <input type="button" class="btn btn-primary btn-block" value="Translate" onclick="translation()">
+    </div>
+    <div>
+        <input type="text" class="form-control h-auto" placeholder="Translated Text" id="translatedText" readonly>
+    </div>
+    <h2 class="text-center">History</h2>
+    <div >
+        <table class="table table-striped">
+            <thead>
+            <tr>
+                <th>User</th>
+                <th>Before translate</th>
+                <th>After translate</th>
+                <th>Time</th>
+            </tr>
+            </thead>
+            <tbody id="history"></tbody>
+        </table>
+    </div>
+</article>
 </body>
 </html>

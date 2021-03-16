@@ -4,6 +4,7 @@ import application.models.NumberTranslationUser;
 import application.models.Role;
 import application.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -27,12 +28,14 @@ public class RegistrationController
     @PostMapping
     public String registerUser(NumberTranslationUser user, Model model){
 
-        if(userRepository.findByLogin(user.getLogin()) != null)
+        if(userRepository.findByUsername(user.getUsername()) != null)
         {
             model.addAttribute("exception", "User already exists!");
             return "registration";
         }
         user.setRoles(Collections.singleton(Role.USER));
+        BCryptPasswordEncoder bCryptPasswordEncoder = new BCryptPasswordEncoder();
+        user.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
         userRepository.save(user);
         return "redirect:/login";
     }

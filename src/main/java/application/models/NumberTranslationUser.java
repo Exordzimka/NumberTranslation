@@ -1,31 +1,40 @@
 package application.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import javax.persistence.*;
+import java.util.Collection;
 import java.util.Set;
 
 @Data
 @Entity
 @Table(name = "number_translation_user")
-public class NumberTranslationUser
+public class NumberTranslationUser implements UserDetails
 {
     @Id
     @GeneratedValue(strategy=GenerationType.AUTO)
-    private int id;
+    private long id;
 
-    private String login;
+    private String username;
     private String password;
+    private boolean active;
 
-    public NumberTranslationUser(){}
-
-    public NumberTranslationUser(String login, String password)
-    {
-        this.login = login;
-        this.password = password;
+    public NumberTranslationUser(){
+        this.active = true;
     }
 
-    @OneToMany(mappedBy = "numberTranslationUser", fetch = FetchType.EAGER)
+    public NumberTranslationUser(String username, String password)
+    {
+        this.username = username;
+        this.password = password;
+        this.active = true;
+    }
+
+    @OneToMany(mappedBy = "numberTranslationUser", fetch = FetchType.LAZY)
+    @JsonIgnore
     private Set<UserHistory> userHistories;
 
     @ElementCollection(targetClass = Role.class, fetch = FetchType.EAGER)
@@ -33,24 +42,19 @@ public class NumberTranslationUser
     @Enumerated(EnumType.STRING)
     private Set<Role> roles;
 
-    public int getId()
+    public long getId()
     {
         return id;
     }
 
-    public void setId(int id)
+    public void setId(long id)
     {
         this.id = id;
     }
 
-    public String getLogin()
+    public void setUsername(String username)
     {
-        return login;
-    }
-
-    public void setLogin(String login)
-    {
-        this.login = login;
+        this.username = username;
     }
 
     public void setUserHistories(Set<UserHistory> userHistories)
@@ -68,9 +72,39 @@ public class NumberTranslationUser
         this.roles = roles;
     }
 
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return getRoles();
+    }
+
     public String getPassword()
     {
         return password;
+    }
+
+    @Override
+    public String getUsername() {
+        return username;
+    }
+
+    @Override
+    public boolean isAccountNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return true;
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return isActive();
     }
 
     public void setPassword(String password)
@@ -78,8 +112,15 @@ public class NumberTranslationUser
         this.password = password;
     }
 
-    public Set<UserHistory> getUserHistories()
-    {
+    public boolean isActive() {
+        return active;
+    }
+
+    public Set<UserHistory> getUserHistories() {
         return userHistories;
+    }
+
+    public void setActive(boolean active) {
+        this.active = active;
     }
 }
